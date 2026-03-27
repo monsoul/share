@@ -1,7 +1,7 @@
 {
-  "name": "marksimos-share",
+  "name": "monsoul-share",
   "version": "0.1.0",
-  "description": "Shared logger and Redis utilities for Marksimos services.",
+  "description": "Shared logger and Redis utilities for Node 24 services.",
   "main": "./src/index.js",
   "type": "commonjs",
   "engines": {
@@ -19,13 +19,25 @@
   "scripts": {
     "test": "node --test"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/monsoul/share.git"
+  },
   "keywords": [
-    "marksimos",
+    "monsoul",
     "logger",
     "redis",
     "shared"
   ],
+  "author": "monsoul <monsoul@msn.com>",
   "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/monsoul/share/issues"
+  },
+  "homepage": "https://github.com/monsoul/share#readme",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
   "dependencies": {
     "ioredis": "^5.10.1"
   }

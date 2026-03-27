@@ -6,10 +6,11 @@ var os = require('node:os');
 var path = require('node:path');
 var test = require('node:test');
 
+var share = require('../src');
 var loggerModule = require('../src/logger');
 
 test('logger writes to daily log file', function() {
-  var logDir = fs.mkdtempSync(path.join(os.tmpdir(), 'marksimos-share-logger-'));
+  var logDir = fs.mkdtempSync(path.join(os.tmpdir(), 'monsoul-share-logger-'));
   var logger;
   var expectedLogFile = path.join(logDir, getDatePrefix(new Date()) + '.log');
 
@@ -32,7 +33,7 @@ test('logger writes to daily log file', function() {
 });
 
 test('request logger logs request summary when response finishes', function() {
-  var logDir = fs.mkdtempSync(path.join(os.tmpdir(), 'marksimos-share-request-'));
+  var logDir = fs.mkdtempSync(path.join(os.tmpdir(), 'monsoul-share-request-'));
   var logger;
   var middleware;
   var req;
@@ -67,6 +68,15 @@ test('request logger logs request summary when response finishes', function() {
   assert.match(fs.readFileSync(expectedLogFile, 'utf8'), /GET \/healthcheck 200/);
 
   loggerModule.resetLoggerConfig();
+});
+
+test('top level logger factory supports compatibility-style usage', function() {
+  var logger = share.logger('compat');
+
+  assert.equal(typeof logger.info, 'function');
+  assert.equal(typeof logger.trace, 'function');
+  assert.equal(typeof share.logger.express, 'function');
+  assert.equal(typeof share.logger.configure, 'function');
 });
 
 function createResponseDouble(statusCode) {

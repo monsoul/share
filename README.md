@@ -1,6 +1,6 @@
-# marksimos-share
+# monsoul-share
 
-`marksimos-share` is a small Node 24 shared package for common service capabilities in the Marksimos project.
+`monsoul-share` is a small Node 24 shared package for reusable service capabilities across projects.
 
 Current modules:
 
@@ -10,7 +10,7 @@ Current modules:
 ## Install
 
 ```bash
-npm install marksimos-share
+npm install monsoul-share
 ```
 
 Before publishing, confirm the npm package name is available. If not, rename the package in `package.json`.
@@ -18,17 +18,17 @@ Before publishing, confirm the npm package name is available. If not, rename the
 ## Logger
 
 ```js
-const share = require('marksimos-share');
+const share = require('monsoul-share');
 
-share.configureLogger({
-  appName: 'marksimosservice',
+share.logger.configure({
+  appName: 'my-service',
   level: 'debug',
   dir: './logs',
   toStdout: true,
   toFile: true
 });
 
-const logger = share.createLogger('seminarService');
+const logger = share.logger('seminarService');
 
 logger.info('service started');
 logger.error('something failed: %s', 'demo');
@@ -38,18 +38,18 @@ Express request logging:
 
 ```js
 const express = require('express');
-const share = require('marksimos-share');
+const share = require('monsoul-share');
 
 const app = express();
-const logger = share.createLogger('http');
+const logger = share.logger('http');
 
-app.use(share.createRequestLogger(logger));
+app.use(share.logger.express(logger));
 ```
 
 ## Redis
 
 ```js
-const share = require('marksimos-share');
+const share = require('monsoul-share');
 
 const redis = share.createRedisService({
   enabled: true,
