@@ -1,0 +1,32 @@
+{
+  "name": "marksimos-share",
+  "version": "0.1.0",
+  "description": "Shared logger and Redis utilities for Marksimos services.",
+  "main": "./src/index.js",
+  "type": "commonjs",
+  "engines": {
+    "node": "24.x"
+  },
+  "exports": {
+    ".": "./src/index.js",
+    "./logger": "./src/logger/index.js",
+    "./redis": "./src/redis/index.js"
+  },
+  "files": [
+    "src",
+    "README.md"
+  ],
+  "scripts": {
+    "test": "node --test"
+  },
+  "keywords": [
+    "marksimos",
+    "logger",
+    "redis",
+    "shared"
+  ],
+  "license": "Apache-2.0",
+  "dependencies": {
+    "ioredis": "^5.10.1"
+  }
+}
