@@ -175,15 +175,26 @@ function createRedisService(options) {
 
 function normalizeRedisOptions(options) {
   var clusterNodes = [];
+  var enabled;
 
   if (Array.isArray(options.clusterNodes)) {
     clusterNodes = options.clusterNodes.slice();
   } else if (options.cluster && Array.isArray(options.cluster.nodes)) {
     clusterNodes = options.cluster.nodes.slice();
+  } else if (Array.isArray(options.servers)) {
+    clusterNodes = options.servers.slice();
+  }
+
+  if (Object.prototype.hasOwnProperty.call(options, 'enabled')) {
+    enabled = Boolean(options.enabled);
+  } else if (Object.prototype.hasOwnProperty.call(options, 'enable')) {
+    enabled = Boolean(options.enable);
+  } else {
+    enabled = DEFAULT_REDIS_OPTIONS.enabled;
   }
 
   return {
-    enabled: Boolean(options.enabled),
+    enabled: enabled,
     url: options.url || null,
     host: options.host || DEFAULT_REDIS_OPTIONS.host,
     port: options.port || DEFAULT_REDIS_OPTIONS.port,
@@ -201,9 +212,9 @@ function normalizeRedisOptions(options) {
     enableReadyCheck: Object.prototype.hasOwnProperty.call(options, 'enableReadyCheck')
       ? Boolean(options.enableReadyCheck)
       : DEFAULT_REDIS_OPTIONS.enableReadyCheck,
-    redisOptions: options.redisOptions || null,
+    redisOptions: options.redisOptions || (options.options && options.options.redisOptions) || null,
     clusterNodes: clusterNodes,
-    clusterOptions: options.clusterOptions || null,
+    clusterOptions: options.clusterOptions || options.options || null,
     logger: options.logger || null
   };
 }

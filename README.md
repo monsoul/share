@@ -116,6 +116,17 @@ async function main() {
 main().catch(console.error);
 ```
 
+Legacy-compatible standalone shape is also supported:
+
+```js
+const redis = share.createRedisService({
+  enable: true,
+  host: process.env.REDIS_HOST || '127.0.0.1',
+  port: Number(process.env.REDIS_PORT || 6379),
+  password: process.env.REDIS_PASSWORD || null
+});
+```
+
 Cluster usage:
 
 ```js
@@ -129,6 +140,24 @@ const redis = share.createRedisService({
     { host: '127.0.0.1', port: 7002 }
   ],
   lazyConnect: true
+});
+```
+
+Legacy-compatible cluster shape is also supported:
+
+```js
+const redis = share.createRedisService({
+  enable: true,
+  isCluster: true,
+  servers: [
+    {
+      host: process.env.REDIS_CLUSTER_HOST || '127.0.0.1',
+      port: Number(process.env.REDIS_CLUSTER_PORT || 7000)
+    }
+  ],
+  options: {
+    redisOptions: { password: process.env.REDIS_PASSWORD || null }
+  }
 });
 ```
 
@@ -146,6 +175,7 @@ Useful Redis methods:
 Note:
 
 - Redis is disabled by default.
+- Default standalone connection is `127.0.0.1:6379` with no password.
 - No Redis connection is created until you call `connect()`, `getClient()`, `getPublisher()`, or `getSubscriber()`.
 
 ## Local Validation

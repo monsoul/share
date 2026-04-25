@@ -40,3 +40,44 @@ test('redis service reports cluster mode without creating a client', function() 
   assert.equal(redis.getStatus().mode, 'cluster');
   assert.equal(redis.getStatus().clients.default, 'not_initialized');
 });
+
+test('redis service supports legacy standalone options shape', function() {
+  var redis = redisModule.createRedisService({
+    enable: true,
+    host: 'redis.example.com',
+    port: 6379,
+    password: '***redacted***'
+  });
+
+  assert.equal(redis.isEnabled(), true);
+  assert.equal(redis.getStatus().mode, 'standalone');
+  assert.equal(redis.options.host, 'redis.example.com');
+  assert.equal(redis.options.port, 6379);
+});
+
+test('redis service supports legacy cluster options shape', function() {
+  var redis = redisModule.createRedisService({
+    enable: true,
+    isCluster: true,
+    servers: [
+      {
+        host: 'cluster-redis.example.com',
+        port: 7000
+      }
+    ],
+    options: {
+      redisOptions: {
+        password: '***redacted***'
+      }
+    }
+  });
+
+  assert.equal(redis.isEnabled(), true);
+  assert.equal(redis.getStatus().mode, 'cluster');
+  assert.deepEqual(redis.options.clusterNodes, [
+    {
+      host: 'cluster-redis.example.com',
+      port: 7000
+    }
+  ]);
+});
