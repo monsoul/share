@@ -19,11 +19,73 @@ function createDefaultConfig() {
   return {
     appName: process.env.LOG_APP_NAME || 'monsoul-share',
     level: normalizeLevel(process.env.LOG_LEVEL || (process.env.NODE_ENV === 'development' ? 'debug' : 'info')),
-    dir: process.env.LOG_DIR || path.join(process.cwd(), 'logs'),
+    dir: resolveDefaultLogDir(),
     toStdout: normalizeBoolean(process.env.LOG_TO_STDOUT, true),
-    toFile: normalizeBoolean(process.env.LOG_TO_FILE, false),
+    toFile: normalizeBoolean(process.env.LOG_TO_FILE, true),
     format: process.env.LOG_FORMAT === 'json' ? 'json' : 'text'
   };
+}
+
+function resolveDefaultLogDir() {
+  var rootDir;
+
+  if (process.env.LOG_DIR) {
+    return process.env.LOG_DIR;
+  }
+
+  rootDir = resolveCallerProjectRoot();
+  return path.join(rootDir, 'logs');
+}
+
+function resolveCallerProjectRoot() {
+  var candidates = [];
+  var i;
+  var projectRoot;
+
+  if (process.env.INIT_CWD) {
+    candidates.push(process.env.INIT_CWD);
+  }
+
+  if (require.main && require.main.filename) {
+    candidates.push(path.dirname(require.main.filename));
+  }
+
+  if (Array.isArray(process.argv) && process.argv[1]) {
+    candidates.push(path.dirname(process.argv[1]));
+  }
+
+  candidates.push(process.cwd());
+
+  for (i = 0; i < candidates.length; i += 1) {
+    projectRoot = findNearestPackageRoot(candidates[i]);
+    if (projectRoot) {
+      return projectRoot;
+    }
+  }
+
+  return process.cwd();
+}
+
+function findNearestPackageRoot(startDir) {
+  var current = startDir ? path.resolve(startDir) : '';
+  var parent;
+
+  if (!current) {
+    return null;
+  }
+
+  while (true) {
+    if (fs.existsSync(path.join(current, 'package.json'))) {
+      return current;
+    }
+
+    parent = path.dirname(current);
+    if (parent === current) {
+      return null;
+    }
+
+    current = parent;
+  }
 }
 
 function configureLogger(options) {
@@ -150,6 +212,8 @@ function normalizeLevel(level) {
 }
 
 function mergeConfig(baseConfig, overrideConfig) {
+  var hasFormat = overrideConfig && Object.prototype.hasOwnProperty.call(overrideConfig, 'format');
+
   return {
     appName: overrideConfig && overrideConfig.appName ? overrideConfig.appName : baseConfig.appName,
     level: normalizeLevel(overrideConfig && overrideConfig.level ? overrideConfig.level : baseConfig.level),
@@ -160,7 +224,9 @@ function mergeConfig(baseConfig, overrideConfig) {
     toFile: overrideConfig && Object.prototype.hasOwnProperty.call(overrideConfig, 'toFile')
       ? Boolean(overrideConfig.toFile)
       : baseConfig.toFile,
-    format: overrideConfig && overrideConfig.format === 'json' ? 'json' : baseConfig.format
+    format: hasFormat
+      ? (overrideConfig.format === 'json' ? 'json' : 'text')
+      : baseConfig.format
   };
 }
 

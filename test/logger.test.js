@@ -20,7 +20,8 @@ test('logger writes to daily log file', function() {
     level: 'debug',
     dir: logDir,
     toStdout: false,
-    toFile: true
+    toFile: true,
+    format: 'text'
   });
 
   logger = loggerModule.createLogger('unit');
@@ -47,7 +48,8 @@ test('request logger logs request summary when response finishes', function() {
     level: 'info',
     dir: logDir,
     toStdout: false,
-    toFile: true
+    toFile: true,
+    format: 'text'
   });
 
   logger = loggerModule.createLogger('http');
@@ -77,6 +79,46 @@ test('top level logger factory supports compatibility-style usage', function() {
   assert.equal(typeof logger.trace, 'function');
   assert.equal(typeof share.logger.express, 'function');
   assert.equal(typeof share.logger.configure, 'function');
+});
+
+test('default logger config enables file output and resolves dir from INIT_CWD project root', function() {
+  var previousInitCwd = process.env.INIT_CWD;
+  var previousLogDir = process.env.LOG_DIR;
+  var previousLogToFile = process.env.LOG_TO_FILE;
+  var tmpProjectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'monsoul-share-project-root-'));
+  var expectedDir = path.join(tmpProjectRoot, 'logs');
+
+  try {
+    fs.writeFileSync(path.join(tmpProjectRoot, 'package.json'), '{}', 'utf8');
+
+    process.env.INIT_CWD = tmpProjectRoot;
+    delete process.env.LOG_DIR;
+    delete process.env.LOG_TO_FILE;
+    loggerModule.resetLoggerConfig();
+
+    assert.equal(loggerModule.getLoggerConfig().toFile, true);
+    assert.equal(loggerModule.getLoggerConfig().dir, expectedDir);
+  } finally {
+    if (previousInitCwd === undefined) {
+      delete process.env.INIT_CWD;
+    } else {
+      process.env.INIT_CWD = previousInitCwd;
+    }
+
+    if (previousLogDir === undefined) {
+      delete process.env.LOG_DIR;
+    } else {
+      process.env.LOG_DIR = previousLogDir;
+    }
+
+    if (previousLogToFile === undefined) {
+      delete process.env.LOG_TO_FILE;
+    } else {
+      process.env.LOG_TO_FILE = previousLogToFile;
+    }
+
+    loggerModule.resetLoggerConfig();
+  }
 });
 
 function createResponseDouble(statusCode) {

@@ -92,6 +92,12 @@ Useful logger methods:
 - `share.createLogger(scope)`
 - `share.createRequestLogger(loggerOrLevel)`
 
+Logger defaults:
+
+- `toFile` defaults to `true`.
+- Default log directory is `<caller-project-root>/logs` (auto-detected by nearest `package.json`).
+- You can still override via `share.logger.configure({ dir })` or `LOG_DIR`.
+
 ## Redis
 
 Basic usage:
