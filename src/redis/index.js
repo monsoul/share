@@ -155,6 +155,47 @@ function createRedisService(options) {
     };
   }
 
+  function set(key, value, callback) {
+    var client = getClient();
+    var string = JSON.stringify(value, null, 3);
+    if (callback) {
+      client.set(key, string, function(e) { callback(e, value); });
+    } else {
+      return client.set(key, string).then(function() { return value; });
+    }
+  }
+
+  function setex(key, ttl, value, callback) {
+    var client = getClient();
+    var string = JSON.stringify(value);
+    if (callback) {
+      client.setex(key, ttl, string, function(e) { callback(e, value); });
+    } else {
+      return client.setex(key, ttl, string).then(function() { return value; });
+    }
+  }
+
+  function get(key, callback) {
+    var client = getClient();
+    if (callback) {
+      client.get(key, function(e, raw) {
+        if (e) return callback(e);
+        try { callback(null, JSON.parse(raw)); } catch (pe) { callback(pe); }
+      });
+    } else {
+      return client.get(key).then(function(raw) { return JSON.parse(raw); });
+    }
+  }
+
+  function del(key, callback) {
+    var client = getClient();
+    if (callback) {
+      client.del(key, function(e) { callback(e); });
+    } else {
+      return client.del(key);
+    }
+  }
+
   return {
     options: getPublicOptions(settings),
     isEnabled: function() {
@@ -169,7 +210,11 @@ function createRedisService(options) {
     connectSubscriber: connectSubscriber,
     ping: ping,
     publish: publish,
-    disconnect: disconnect
+    disconnect: disconnect,
+    set: set,
+    setex: setex,
+    get: get,
+    del: del
   };
 }
 
